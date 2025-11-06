@@ -8,13 +8,9 @@ root = tk.Tk()
 root.title("Ptak Note")
 root.geometry("500x500")
 style = Style(theme="journal")
-style = ttk.Style()
 
 # Configure the tab font to be bold
 style.configure("TNotebook.Tab", font=("TkDefaultFont", 14, "bold"))
-
-# Create the notebook to hold the notes
-notebook = ttk.Notebook(root, style="TNotebook")
 
 # Load saved notes
 notes = {}
@@ -58,7 +54,7 @@ def add_note():
         
         # Save the notes dictionary to the file
         with open("notes.json", "w") as f:
-            json.dump(notes, f)
+            json.dump(notes, f, indent=4)
 
         # Add the note to the notebook
         note_content = tk.Text(notebook, width=40, height=10)
@@ -86,32 +82,56 @@ def load_notes():
         # If the file does not exist, do nothing
         pass
 
-# Call the load_notes function when the app starts
-load_notes()
-
 # Create a function to delete a note
 def delete_note():
-    # Get the current tab index
-    current_tab = notebook.index(notebook.select())
-
-    # Get the title of the note to be deleted
-    note_title = notebook.tab(current_tab, "text")
+    tab_id, _, current_title = get_current_tab()
 
     # Show a confirmation dialog
     confirm = messagebox.askyesno("Delete note",
-                                  f"Are you sure you want to delete {note_title}?")
+                                  f"Are you sure you want to delete {current_title}?")
     
     if confirm:
         # Remove the note from the notebook
-        notebook.forget(current_tab)
+        notebook.forget(tab_id)
 
         # Remove the note from the notes dictionary
-        notes.pop(note_title)
+        notes.pop(current_title)
 
         # Save the notes dictionary to the file
         with open("notes.json", "w") as f:
-            json.dump(notes, f)
-        
+            json.dump(notes, f, indent=4)
+
+# Create a function to save changes to an existing (current) note
+def save_current_note():
+    _, current_tab_widget, current_title = get_current_tab()
+
+    if not isinstance(current_tab_widget, tk.Text):
+        messagebox.showinfo("Saving error", "Make sure you are saving an existing note, not a new one.")
+        return
+    
+    content = current_tab_widget.get("1.0",tk.END).strip()
+
+    if current_title in notes:
+        notes[current_title] = content
+    
+        try:
+            with open("notes.json", "w") as f:
+                json.dump(notes, f, indent=4)
+            messagebox.showinfo("Updated", "Note has been updated.")
+
+        except Exception as e:
+            messagebox.showerror("Saving error", f"Failed to save {e}.")
+    else:
+        messagebox.showerror("Error","This note does not exist, check the title.")
+
+# Get current note data
+def get_current_tab():
+    # current_tab = notebook.index(notebook.select())
+    tab_id = notebook.select()
+    current_tab_widget = notebook.nametowidget(tab_id)
+    current_title = notebook.tab(tab_id, "text")
+    return tab_id, current_tab_widget, current_title
+
 # Add buttons to the main window
 new_button = ttk.Button(root, text="New note",
                         command=add_note, style="info.TButton")
@@ -120,5 +140,12 @@ new_button.pack(side=tk.LEFT, padx=10, pady=10)
 delete_button = ttk.Button(root, text="Delete note",
                            command=delete_note, style="primary.TButton")
 delete_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+update_button = ttk.Button(root, text="Update note",
+                           command=save_current_note, style="success.TButton")
+update_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+# Call the load_notes function when the app starts
+load_notes()
 
 root.mainloop()
