@@ -79,7 +79,7 @@ def load_notes():
         for title, content in notes.items():
             # Add the note to the notebook
             note_content = tk.Text(notebook, width=40, height=10)
-            note_content.isnert(tk.END, content)
+            note_content.insert(tk.END, content)
             notebook.add(note_content, text=title)
 
     except FileNotFoundError:
@@ -109,7 +109,7 @@ def delete_note():
         notes.pop(note_title)
 
         # Save the notes dictionary to the file
-        with open("notes.json", "r") as f:
+        with open("notes.json", "w") as f:
             json.dump(notes, f)
         
 # Add buttons to the main window
