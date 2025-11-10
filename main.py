@@ -3,7 +3,7 @@ from tkinter import ttk, messagebox
 import json
 from ttkbootstrap import Style
 
-# Creatae the main window
+# Create the main window
 root = tk.Tk()
 root.title("Ptak Note")
 root.geometry("500x500")
@@ -43,6 +43,8 @@ def add_note():
     content_entry = tk.Text(note_frame, width=40, height=10)
     content_entry.grid(row=1, column=1, padx=10, pady=10)
 
+    notebook.select(note_frame)
+
     # Create a function to save the note
     def save_note():
         # Get the title and content of the note
@@ -55,12 +57,16 @@ def add_note():
         # Save the notes dictionary to the file
         with open("notes.json", "w") as f:
             json.dump(notes, f, indent=4)
+        
+        # Remove the temporary input frame
+        current_tab_id = notebook.select()
+        notebook.forget(current_tab_id)
 
         # Add the note to the notebook
         note_content = tk.Text(notebook, width=40, height=10)
         note_content.insert(tk.END, content)
-        notebook.forget(notebook.select())
         notebook.add(note_content, text=title)
+        notebook.select(note_content)
 
     # Add a save button to the frame
     save_button = ttk.Button(note_frame, text="Save", 
@@ -68,19 +74,14 @@ def add_note():
     save_button.grid(row=2, column=1, padx=10, pady=10)
 
 def load_notes():
-    try:
-        with open("notes.json", "r") as f:
-            notes = json.load(f)
-        
-        for title, content in notes.items():
-            # Add the note to the notebook
-            note_content = tk.Text(notebook, width=40, height=10)
-            note_content.insert(tk.END, content)
-            notebook.add(note_content, text=title)
-
-    except FileNotFoundError:
-        # If the file does not exist, do nothing
-        pass
+    with open("notes.json", "r") as f:
+        notes = json.load(f)
+    
+    for title, content in notes.items():
+        # Add the note to the notebook
+        note_content = tk.Text(notebook, width=40, height=10)
+        note_content.insert(tk.END, content)
+        notebook.add(note_content, text=title)
 
 # Create a function to delete a note
 def delete_note():
