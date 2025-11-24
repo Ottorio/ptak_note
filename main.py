@@ -158,7 +158,8 @@ def save_current_note():
 root = tk.Tk()
 root.title("Ptak Note")
 root.geometry("600x600")
-style = Style(theme="journal")
+style = Style(theme="journal") # light
+# style = Style(theme="cyborg") # dark
 style.configure("TNotebook.Tab", font=("TkDefaultFont", 11, "bold")) 
 
 notebook = ttk.Notebook(root)
