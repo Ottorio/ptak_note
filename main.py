@@ -42,6 +42,13 @@ def get_current_tab():
     
     return tab_id, current_tab_frame, title_entry_widget, content_text_widget, current_title, current_id
 
+def set_theme(event):
+    selected = combo.get()
+    if selected == "Light Theme":
+        style.theme_use("journal")
+    elif selected == "Dark Theme":
+        style.theme_use("darkly")
+
 # --- Main functions ---
 
 def load_notes():    
@@ -158,9 +165,10 @@ def save_current_note():
 root = tk.Tk()
 root.title("Ptak Note")
 root.geometry("600x600")
-style = Style(theme="journal") # light
-# style = Style(theme="cyborg") # dark
+# style = Style(theme="journal") # light
+style = Style(theme="darkly") # dark
 style.configure("TNotebook.Tab", font=("TkDefaultFont", 11, "bold")) 
+
 
 notebook = ttk.Notebook(root)
 notebook.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
@@ -186,6 +194,11 @@ delete_button.pack(side=tk.LEFT, padx=10, pady=10)
 update_button = ttk.Button(root, text="Update/save note",
                             command=save_current_note, style="success.TButton")
 update_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+combo = ttk.Combobox(state="readonly", values=["Light Theme", "Dark Theme"])
+combo.bind("<<ComboboxSelected>>", set_theme)
+combo.current(1) # default to dark
+combo.pack(side=tk.RIGHT, padx=10, pady=10)
 
 load_notes()
 

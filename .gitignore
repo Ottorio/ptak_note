@@ -3,3 +3,4 @@ __pycache__/
 notes.json
 scrap.txt
 backup.py
+tests.py
